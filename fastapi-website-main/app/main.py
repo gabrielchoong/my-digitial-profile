@@ -2,38 +2,14 @@ from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
 from app.schemas import Student
 
-import json
-import os
+from helper import save_data, load_data
+from database import db
 
 app = FastAPI()
 
-DB_FILE = "database.json"
-
-def save_data():
-    with open(DB_FILE, "w") as f:
-        json.dump(db, f, indent=4)
-    print("Data saved to JSON.")
-
-def load_data():
-    global db
-    if os.path.exists(DB_FILE):
-        with open(DB_FILE, "r") as f:
-            try:
-                db = json.load(f)
-                print("Data loaded successfully")
-            except json.JSONDecodeError:
-                db = []
-    else:
-        db = []
 
 load_data()
 
-biography = "Hi, I'm Gabriel! Nice to meet you."
-socials = "<a href='https://www.instagram.com'>My Instagram</a>"
-
-db = [
-    {"name": "Gabriel Choong", "hobby": "Reading", "age": "23", "color": "Red", "biography": biography, "socials": socials},
-]
 
 @app.get("/", response_class=HTMLResponse)
 async def home():
@@ -105,14 +81,17 @@ async def home():
     """
     return html_content
 
+
 @app.get("/students")
 async def get_students():
     return db
+
 
 @app.post("/add-student")
 async def add_student(student: Student):
     db.append(student.model_dump())
     return {"message": f"Added {student.name}'s profile!"}
+
 
 @app.delete("/delete-student/{name}")
 async def delete_student(name: str):
@@ -131,7 +110,8 @@ async def delete_student(name: str):
         else:
             return {"message": f"Student {name} not found!"}
 
+
 @app.post("/save-everything")
 async def save_everything():
     save_data()
-    return {"message" : "All data has been saved to disk!"}
+    return {"message": "All data has been saved to disk!"}
