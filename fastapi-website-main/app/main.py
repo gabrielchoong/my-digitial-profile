@@ -2,8 +2,8 @@ from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
 from app.schemas import Student
 
-from helper import save_data, load_data
-from database import db
+from .helper import save_data, load_data
+from .database import db
 
 app = FastAPI()
 
